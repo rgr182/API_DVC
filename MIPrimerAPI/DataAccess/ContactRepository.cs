@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using MIPrimerAPI.Entities;
+﻿using MIPrimerAPI.Entities;
 using System.Data.SqlClient;
 
 namespace MIPrimerAPI.DataAccess
@@ -19,8 +18,9 @@ namespace MIPrimerAPI.DataAccess
             _configuration = configuration;
         }
 
-        private static void CreateCommand(string script, string connectionString)
-        {            
+        private void Execute(string script)
+        {
+            string connectionString = _configuration.GetConnectionString("SchoolConnection");
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand command = new SqlCommand(script, connection);
@@ -33,10 +33,15 @@ namespace MIPrimerAPI.DataAccess
         {
             string script = $"insert into contact (Name, Email,Comment, CreationDate) " +
                             $"values ('{contact.Name}','{contact.Email}','{contact.Comment}','{DateTime.UtcNow}')";
-            string connectionString = _configuration.GetConnectionString("SchoolConnection");
-            CreateCommand(script, connectionString);
+            Execute(script);
             return true;
         }
+
+
+        //TODO:GetContactByDate
+
+
+
     }
 
 
