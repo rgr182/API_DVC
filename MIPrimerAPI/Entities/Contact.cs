@@ -1,12 +1,7 @@
 ﻿namespace MIPrimerAPI.Entities
 {
     public class Contact
-    {
-        public Contact()
-        {
-            var test = 12;
-        }
-
+    {       
         int ContactId { get; set; }
 
         public string Name { get; set; }
