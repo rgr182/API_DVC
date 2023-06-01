@@ -2,15 +2,17 @@
 
 namespace MIPrimerAPI.Entities
 {
-    public class Contact
-    {       
-        int ContactId { get; set; }
+    public class Donation
+    {   
+        public int DonationId { get; set; }
 
         public string Name { get; set; }
 
         public string Email { get; set; }
 
-        public string Comment { get; set; }
+        public int Amount { get; set; }
+
+        public string Card { get; set; }
 
         [JsonIgnore]
         public DateTime CreationDate { get; set; } = DateTime.Now;

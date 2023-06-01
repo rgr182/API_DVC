@@ -9,6 +9,16 @@ namespace MIPrimerAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -19,9 +29,11 @@ namespace MIPrimerAPI
             //Database Setup
             string connectionString = builder.Configuration.GetConnectionString("EscuelaConnection");
 
-            Environment.SetEnvironmentVariable("Connection", connectionString);
+            Environment.SetEnvironmentVariable("Connection", connectionString);            
 
             builder.Services.AddScoped<IContactRepository, ContactRepository>();
+
+            builder.Services.AddScoped<IDonationRepository, DonationRepository>();
 
             var app = builder.Build();
 
@@ -39,7 +51,9 @@ namespace MIPrimerAPI
 
             app.MapControllers();
 
+            app.UseCors();
+
             app.Run();
-        }
+        }       
     }
 }

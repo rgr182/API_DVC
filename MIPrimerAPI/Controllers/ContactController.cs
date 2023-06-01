@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MIPrimerAPI.DataAccess;
 using MIPrimerAPI.Entities;
 
@@ -7,7 +6,7 @@ using MIPrimerAPI.Entities;
 namespace MIPrimerAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ContactController : Controller
     {
         ILogger<ContactController> _logger;
