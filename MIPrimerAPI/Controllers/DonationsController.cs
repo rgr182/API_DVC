@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MIPrimerAPI.DataAccess;
 using MIPrimerAPI.Entities;
+using System;
 
 namespace MIPrimerAPI.Controllers
 {
@@ -23,6 +25,22 @@ namespace MIPrimerAPI.Controllers
             _donationRepository.CreateDonation(donation);
 
             return Ok("Thanks for your donation! Someone will contact you shortly.");
+        }
+
+        [HttpGet("date/{date}")]
+        public IActionResult GetDonationByDate(DateTime date)
+        {
+            var donations = _donationRepository.GetDonationByDate(date);
+
+            return Ok(donations);
+        }
+
+        [HttpGet("email/{email}")]
+        public IActionResult GetDonationByEmail(string email)
+        {
+            var donations = _donationRepository.GetDonationByEmail(email);
+
+            return Ok(donations);
         }
     }
 }

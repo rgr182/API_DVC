@@ -3,7 +3,8 @@
 namespace MIPrimerAPI.Entities
 {
     public class Contact
-    {       
+    {
+        [JsonIgnore]
         int ContactId { get; set; }
 
         public string Name { get; set; }

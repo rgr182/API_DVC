@@ -3,7 +3,8 @@
 namespace MIPrimerAPI.Entities
 {
     public class Donation
-    {   
+    {
+        [JsonIgnore]
         public int DonationId { get; set; }
 
         public string Name { get; set; }

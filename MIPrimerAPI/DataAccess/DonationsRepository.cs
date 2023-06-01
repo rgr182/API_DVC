@@ -1,4 +1,5 @@
-﻿using MIPrimerAPI.Entities;
+﻿using Dapper;
+using MIPrimerAPI.Entities;
 using System.Data.SqlClient;
 
 namespace MIPrimerAPI.DataAccess
@@ -6,44 +7,83 @@ namespace MIPrimerAPI.DataAccess
 
     public interface IDonationRepository
     {
-        public bool CreateDonation(Donation contact);
+        bool CreateDonation(Donation donation);
+        IEnumerable<Donation> GetDonationByDate(DateTime date);
+        IEnumerable<Donation> GetDonationByEmail(string email);
     }
+
 
 
     public class DonationRepository : IDonationRepository
     {
         IConfiguration _configuration;
+        string _connectionString;
         public DonationRepository(IConfiguration configuration)
         {
             _configuration = configuration;
-        }
-
-        private void Execute(string script)
-        {
-            string connectionString = _configuration.GetConnectionString("SchoolConnection");
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(script, connection);
-                command.Connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
+            _connectionString = _configuration.GetConnectionString("SchoolConnection");
+        }    
 
         public bool CreateDonation(Donation donation)
         {
-            string script = $"insert into Donation (Name,Email, Amount, Card, CreationDate) " +
-                            $"values ('{donation.Name}','{donation.Email}','{donation.Amount}','{donation.Card}','{DateTime.UtcNow}')";
-           
-            Execute(script);
-            return true;
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    string query = "INSERT INTO Donation (Name, Email, Amount, Card, CreationDate) " +
+                                   "VALUES (@Name, @Email, @Amount, @Card, @CreationDate)";
+
+                    var parameters = new
+                    {
+                        Name = donation.Name,
+                        Email = donation.Email,
+                        Amount = donation.Amount,
+                        Card = donation.Card,
+                        CreationDate = DateTime.UtcNow
+                    };
+
+                    connection.Execute(query, parameters);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception and log the error
+                return false;
+            }
         }
 
 
-        //TODO:GetDonationByDate
 
+        public IEnumerable<Donation> GetDonationByDate(DateTime date)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM Donation WHERE CreationDate >= @Date";
 
+                var parameters = new
+                {
+                    Date = date.Date // Considerar solo la fecha, sin la hora
+                };
 
+                return connection.Query<Donation>(query, parameters);
+            }
+        }
+
+        public IEnumerable<Donation> GetDonationByEmail(string email)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM Donation WHERE Email = @Email";
+
+                var parameters = new
+                {
+                    Email = email
+                };
+
+                return connection.Query<Donation>(query, parameters);
+            }
+        }
     }
-
-
 }
