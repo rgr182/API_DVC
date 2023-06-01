@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MIPrimerAPI.DataAccess;
 using MIPrimerAPI.Entities;
-using System;
 
 namespace MIPrimerAPI.Controllers
 {
