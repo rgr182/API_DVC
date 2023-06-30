@@ -29,7 +29,7 @@ namespace MIPrimerAPI
             //Database Setup
             string connectionString = builder.Configuration.GetConnectionString("EscuelaConnection");
 
-            Environment.SetEnvironmentVariable("Connection", connectionString);            
+            Environment.SetEnvironmentVariable("Connection", connectionString);
 
             builder.Services.AddScoped<IContactRepository, ContactRepository>();
 
@@ -37,12 +37,8 @@ namespace MIPrimerAPI
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
@@ -54,6 +50,6 @@ namespace MIPrimerAPI
             app.UseCors();
 
             app.Run();
-        }       
+        }
     }
 }

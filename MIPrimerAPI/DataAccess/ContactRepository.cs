@@ -1,29 +1,34 @@
 ﻿using Dapper;
 using MIPrimerAPI.Entities;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System.Data.SqlClient;
 
 namespace MIPrimerAPI.DataAccess
 {
-
     public interface IContactRepository
     {
-        bool CreateContact(Contact contact);
+        Task<bool> CreateContact(Contact contact);
         IEnumerable<Contact> GetContactByDate(DateTime date);
         IEnumerable<Contact> GetContactByEmail(string email);
     }
 
-
     public class ContactRepository : IContactRepository
     {
-        IConfiguration _configuration;
-        string _connectionString;
+        private IConfiguration _configuration;
+        private string _connectionString;
+        private readonly string _emailSender;
+        private readonly string _emailRecipient;
+
         public ContactRepository(IConfiguration configuration)
         {
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString("SchoolConnection");
+            _emailSender = _configuration.GetSection("EmailSettings:Sender").Value;
+            _emailRecipient = _configuration.GetSection("EmailSettings:Recipient").Value;
         }
 
-        public bool CreateContact(Contact contact)
+        public async Task<bool> CreateContact(Contact contact)
         {
             try
             {
@@ -34,20 +39,22 @@ namespace MIPrimerAPI.DataAccess
 
                     var parameters = new
                     {
-                        Name = contact.Name,
-                        Email = contact.Email,
-                        Comment = contact.Comment,
+                        contact.Name,
+                        contact.Email,
+                        contact.Comment,
                         CreationDate = DateTime.UtcNow
                     };
 
                     connection.Execute(query, parameters);
                 }
 
+                await SendEmail(contact); // Enviar el correo electrónico
+
                 return true;
             }
             catch (Exception ex)
             {
-                // Handle the exception and log the error
+                // Manejar la excepción y registrar el error
                 return false;
             }
         }
@@ -81,5 +88,46 @@ namespace MIPrimerAPI.DataAccess
                 return connection.Query<Contact>(query, parameters);
             }
         }
+
+        private async Task SendEmail(Contact contact)
+        {
+            string apiKey = _configuration.GetSection("EmailSettings:ApiKey").Value;
+            string senderEmail = _configuration.GetSection("EmailSettings:Sender").Value;
+            string recipientEmail = "rgr_182@hotmail.com";
+            string senderName = "Nombre Remitente";
+            string recipientName = "Nombre Destinatario";
+            string subject = "Asunto del correo";
+            string plainTextContent = "Este es el contenido de texto sin formato.";
+            string htmlContent = "<p>Este es el contenido HTML del correo.</p>";
+
+            // Crear un cliente SendGrid
+            var client = new SendGridClient(apiKey);
+
+            // Construir el objeto Email
+            var from = new EmailAddress(senderEmail, senderName);
+            var to = new EmailAddress(recipientEmail, recipientName);
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+
+            try
+            {
+                // Enviar el correo electrónico
+                var response = await client.SendEmailAsync(msg);
+
+                // Verificar el código de respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Correo enviado exitosamente");
+                }
+                else
+                {
+                    Console.WriteLine("Error al enviar el correo: " + response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al enviar el correo: " + ex.Message);
+            }
+        }
+
     }
 }

@@ -18,9 +18,9 @@ namespace MIPrimerAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateContact([FromBody] Contact contact)
+        public async Task<IActionResult> CreateContact([FromBody] Contact contact)
         {
-            _contactRepository.CreateContact(contact);
+            await _contactRepository.CreateContact(contact);
 
             return Ok("Thanks for your contact! Someone will get in touch with you shortly.");
         }
